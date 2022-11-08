@@ -41,14 +41,14 @@ class So1sUser(FastHttpUser):
                   'inputDType': 'numpy',
                   'deviceType': 'CPU'})
 
-        time.sleep(1)
-
         models = self.client.get("/api/v1/models").json()
         self.model = [e for e in models if e["name"]
                       == model_name][0]
 
-        self.model_metadata = self.client.get(
-            f"/api/v1/models/{self.model['id']}").json()[0]
+        while self.model_metadata is None or self.model_metadata.get('status') not in ['SUCCEEDED', 'FAILED']:
+            self.model_metadata = self.client.get(
+                f"/api/v1/models/{self.model['id']}").json()[0]
+            time.sleep(0.5)
 
     def delete_model(self):
         self.client.delete(
