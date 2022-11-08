@@ -38,7 +38,7 @@ class So1sUser(FastHttpUser):
                   'inputShape': '(1,)',
                   'inputDType': 'numpy',
                   'outputShape': '(1,)',
-                  'inputDType': 'numpy',
+                  'outputDType': 'numpy',
                   'deviceType': 'CPU'})
 
         models = self.client.get("/api/v1/models").json()
