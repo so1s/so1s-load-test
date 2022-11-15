@@ -1,31 +1,42 @@
 from locust import FastHttpUser, task
 import uuid
-import time
+import requests
+import random
+
+
+def get_auth_token():
+    res = requests.post("http://localhost:8080/api/v1/signin",
+                        json={"username": "so1s", "password": "admin12345"})
+
+    return res.json()["token"]
 
 
 class So1sUser(FastHttpUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.model = None
-        self.model_metadata = None
-        self.resource = None
-        self.deployment = None
+        self.token = get_auth_token()
+
+    @property
+    def auth_header(self):
+        return {"authorization": "Bearer " + self.token}
 
     @task
-    def main_task(self):
-        self.login()
-        self.create_model()
-        self.create_resource()
-        self.create_deployment()
-        self.load_test_endpoint()
-        self.delete_deployment()
-        self.delete_resource()
-        self.delete_model()
+    def get_models(self) -> list[dict]:
+        return self.client.get(
+            "/api/v1/models", headers=self.auth_header).json()
 
-    def login(self):
-        self.client.post(
-            "/api/v1/signin", json={"username": "so1s", "password": "admin12345"})
+    @task
+    def get_resources(self) -> list[dict]:
+        return self.client.get("/api/v1/resources", headers=self.auth_header).json()
 
+    @task
+    def get_deployments(self) -> list[dict]:
+        return self.client.get("/api/v1/deployments", headers=self.auth_header).json()
+
+    def get_model_metadata(self, model: dict):
+        return self.client.get(f"/api/v1/models/{model['id']}").json()
+
+    @task
     def create_model(self):
         model_name = str(uuid.uuid4())
 
@@ -41,24 +52,7 @@ class So1sUser(FastHttpUser):
                   'outputDType': 'numpy',
                   'deviceType': 'CPU'})
 
-        models = self.client.get("/api/v1/models").json()
-        self.model = [e for e in models if e["name"]
-                      == model_name][0]
-
-        while self.model_metadata is None or self.model_metadata.get('status') not in ['SUCCEEDED', 'FAILED']:
-            self.model_metadata = self.client.get(
-                f"/api/v1/models/{self.model['id']}").json()[0]
-            time.sleep(0.5)
-
-    def delete_model(self):
-        self.client.delete(
-            f"/api/v1/models/{self.model['id']}/versions/{self.model_metadata['version']}")
-
-        time.sleep(1)
-
-        self.client.delete(
-            f"/api/v1/models/{self.model['id']}")
-
+    @task
     def create_resource(self):
         resource_name = str(uuid.uuid4())
 
@@ -72,21 +66,17 @@ class So1sUser(FastHttpUser):
             'gpuLimit': '0',
         })
 
-        time.sleep(1)
-
-        resources = self.client.get("/api/v1/resources").json()
-
-        self.resource = [e for e in resources if e['name'] == resource_name][0]
-
-    def delete_resource(self):
-        self.client.delete(f"/api/v1/resources/{self.resource['id']}")
-
+    @task
     def create_deployment(self):
+        resource = random.choice(self.get_resources())
+        model = random.choice(self.get_models())
+        model_metadata = self.get_model_metadata(model)[-1]
+
         self.client.post("/api/v1/deployments", json={
             'name': str(uuid.uuid4()),
-            'modelMetadataId': self.model_metadata['id'],
+            'modelMetadataId': model_metadata['id'],
             'strategy': 'rolling',
-            'resourceId': self.resource['id'],
+            'resourceId': resource['id'],
             'scale': {
                 'standard': {
                     'unit': '',
@@ -98,12 +88,17 @@ class So1sUser(FastHttpUser):
             }
         })
 
-    def delete_deployment(self):
-        self.client.delete(f"/api/v1/deployments/{self.deployment['id']}")
-
+    @task(5)
     def load_test_endpoint(self):
-        ep = self.deployment['endPoint']
+        deployment = random.choice(self.get_deployments())
+        ep = deployment['endPoint']
 
-        for i in range(int(10**5)):
+        for i in range(int(100)):
             self.client.post(f"{ep}/predict", files=[
                 ('image', ('leonberg.jpg', open('images/leonberg.jpg', 'rb'), 'image/jpeg'))])
+
+    def delete_resource(self):
+        self.client.delete(f"/api/v1/resources/{self.resource['id']}")
+
+    def delete_deployment(self):
+        self.client.delete(f"/api/v1/deployments/{self.deployment['id']}")
