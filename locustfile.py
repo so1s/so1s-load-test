@@ -45,7 +45,7 @@ class So1sUser(FastHttpUser):
             files=[  # https://superuser.com/a/960710/1159180
                 ('modelFile', ('model.zip', open('./models/efficientnet.zip', 'rb'), 'application/gzip'))],
 
-            json={"name": model_name,
+            data={"name": model_name,
                   'library': 'keras',
                   'inputShape': '(1,)',
                   'inputDType': 'numpy',
