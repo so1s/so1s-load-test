@@ -20,6 +20,9 @@ def generate_id():
 
 
 class So1sUser(FastHttpUser):
+    network_timeout = 300000.0
+    connection_timeout = 300000.0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.token = get_auth_token()
@@ -49,7 +52,7 @@ class So1sUser(FastHttpUser):
         model_name = generate_id()
 
         self.client.post(
-            "/api/v1/models", headers=self.auth_header, timeout=3000000,
+            "/api/v1/models", headers=self.auth_header,
             files=[  # https://superuser.com/a/960710/1159180
                 ('modelFile', ('model.zip', open('./models/efficientnet.zip', 'rb'), 'application/gzip'))],
             data={"name": model_name,
