@@ -11,6 +11,14 @@ def get_auth_token():
     return res.json()["token"]
 
 
+def generate_id():
+    while True:
+        id = str(uuid.uuid4())
+
+        if id[0].isalpha():
+            return id.replace('-', '')
+
+
 class So1sUser(FastHttpUser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,7 +46,7 @@ class So1sUser(FastHttpUser):
 
     @task
     def create_model(self):
-        model_name = str(uuid.uuid4())
+        model_name = generate_id()
 
         self.client.post(
             "/api/v1/models", headers=self.auth_header,
@@ -55,7 +63,7 @@ class So1sUser(FastHttpUser):
 
     @task
     def create_resource(self):
-        resource_name = str(uuid.uuid4())
+        resource_name = generate_id()
 
         self.client.post("/api/v1/resources", headers=self.auth_header,
                          json={
@@ -76,16 +84,13 @@ class So1sUser(FastHttpUser):
 
         self.client.post("/api/v1/deployments", headers=self.auth_header,
                          json={
-                             'name': str(uuid.uuid4()),
+                             'name': generate_id(),
                              'modelMetadataId': model_metadata['id'],
                              'strategy': 'rolling',
                              'resourceId': resource['id'],
                              'scale': {
-                                 'standard': {
-                                     'unit': '',
-                                     'type': ''
-                                 },
-                                 'standardValue': 1,
+                                 'standard': 'REPLICAS',
+                                 'standardValue': "1",
                                  'minReplicas': 1,
                                  'maxReplicas': 1
                              }
