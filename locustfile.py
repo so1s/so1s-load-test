@@ -1,14 +1,6 @@
 from locust import FastHttpUser, task
 import uuid
-import requests
 import random
-
-
-def get_auth_token():
-    res = requests.post("http://localhost:8080/api/v1/signin",
-                        json={"username": "so1s", "password": "admin12345"})
-
-    return res.json()["token"]
 
 
 def generate_id():
@@ -25,7 +17,13 @@ class So1sUser(FastHttpUser):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.token = get_auth_token()
+        self.token = self.get_auth_token()
+
+    def get_auth_token(self):
+        res = self.client.post("/api/v1/signin",
+                               json={"username": "so1s", "password": "admin12345"})
+
+        return res.json()["token"]
 
     @property
     def auth_header(self):
