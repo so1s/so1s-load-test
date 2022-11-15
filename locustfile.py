@@ -49,16 +49,15 @@ class So1sUser(FastHttpUser):
         model_name = generate_id()
 
         self.client.post(
-            "/api/v1/models", headers=self.auth_header,
+            "/api/v1/models", headers=self.auth_header, timeout=3000000,
             files=[  # https://superuser.com/a/960710/1159180
                 ('modelFile', ('model.zip', open('./models/efficientnet.zip', 'rb'), 'application/gzip'))],
-
             data={"name": model_name,
                   'library': 'keras',
                   'inputShape': '(1,)',
-                  'inputDType': 'numpy',
+                  'inputDtype': 'numpy',
                   'outputShape': '(1,)',
-                  'outputDType': 'numpy',
+                  'outputDtype': 'numpy',
                   'deviceType': 'CPU'})
 
     @task
@@ -102,7 +101,7 @@ class So1sUser(FastHttpUser):
         ep = deployment['endPoint']
 
         for i in range(int(100)):
-            self.client.post(f"{ep}/predict", files=[
+            self.client.post(f"http://{ep}/predict", files=[
                 ('image', ('leonberg.jpg', open('images/leonberg.jpg', 'rb'), 'image/jpeg'))])
 
     def delete_resource(self):
