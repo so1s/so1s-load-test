@@ -82,6 +82,9 @@ class So1sUser(FastHttpUser):
         model = random.choice(self.get_models())
         model_metadata = self.get_model_metadata(model)[-1]
 
+        if model_metadata['status'] != 'SUCCEEDED':
+            return
+
         self.client.post("/api/v1/deployments", headers=self.auth_header,
                          json={
                              'name': generate_id(),
@@ -96,14 +99,16 @@ class So1sUser(FastHttpUser):
                              }
                          })
 
-    @task(5)
+    @task(20)
     def load_test_endpoint(self):
         deployment = random.choice(self.get_deployments())
         ep = deployment['endPoint']
 
-        for i in range(int(100)):
-            self.client.post(f"http://{ep}/predict", files=[
-                ('image', ('leonberg.jpg', open('images/leonberg.jpg', 'rb'), 'image/jpeg'))])
+        if deployment['status'] != 'RUNNING':
+            return
+
+        self.client.post(f"http://{ep}/predict", files=[
+            ('image', ('leonberg.jpg', open('images/leonberg.jpg', 'rb'), 'image/jpeg'))])
 
     def delete_resource(self):
         self.client.delete(f"/api/v1/resources/{self.resource['id']}")
