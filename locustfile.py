@@ -34,15 +34,16 @@ class So1sUser(FastHttpUser):
         return self.client.get("/api/v1/deployments", headers=self.auth_header).json()
 
     def get_model_metadata(self, model: dict):
-        return self.client.get(f"/api/v1/models/{model['id']}").json()
+        return self.client.get(f"/api/v1/models/{model['id']}", headers=self.auth_header).json()
 
     @task
     def create_model(self):
         model_name = str(uuid.uuid4())
 
         self.client.post(
-            "/api/v1/models", files=[  # https://superuser.com/a/960710/1159180
-                ('modelFile', ('model.tgz', open('./models/efficientnet.tgz', 'rb'), 'application/gzip'))],
+            "/api/v1/models", headers=self.auth_header,
+            files=[  # https://superuser.com/a/960710/1159180
+                ('modelFile', ('model.zip', open('./models/efficientnet.zip', 'rb'), 'application/gzip'))],
 
             json={"name": model_name,
                   'library': 'keras',
@@ -56,15 +57,16 @@ class So1sUser(FastHttpUser):
     def create_resource(self):
         resource_name = str(uuid.uuid4())
 
-        self.client.post("/api/v1/resources", json={
-            'name': resource_name,
-            'cpu': '500m',
-            'memory': '1Gi',
-            'gpu': '0',
-            'cpuLimit': '500m',
-            'memoryLimit': '1Gi',
-            'gpuLimit': '0',
-        })
+        self.client.post("/api/v1/resources", headers=self.auth_header,
+                         json={
+                             'name': resource_name,
+                             'cpu': '500m',
+                             'memory': '1Gi',
+                             'gpu': '0',
+                             'cpuLimit': '500m',
+                             'memoryLimit': '1Gi',
+                             'gpuLimit': '0',
+                         })
 
     @task
     def create_deployment(self):
@@ -72,21 +74,22 @@ class So1sUser(FastHttpUser):
         model = random.choice(self.get_models())
         model_metadata = self.get_model_metadata(model)[-1]
 
-        self.client.post("/api/v1/deployments", json={
-            'name': str(uuid.uuid4()),
-            'modelMetadataId': model_metadata['id'],
-            'strategy': 'rolling',
-            'resourceId': resource['id'],
-            'scale': {
-                'standard': {
-                    'unit': '',
-                    'type': ''
-                },
-                'standardValue': 1,
-                'minReplicas': 1,
-                'maxReplicas': 1
-            }
-        })
+        self.client.post("/api/v1/deployments", headers=self.auth_header,
+                         json={
+                             'name': str(uuid.uuid4()),
+                             'modelMetadataId': model_metadata['id'],
+                             'strategy': 'rolling',
+                             'resourceId': resource['id'],
+                             'scale': {
+                                 'standard': {
+                                     'unit': '',
+                                     'type': ''
+                                 },
+                                 'standardValue': 1,
+                                 'minReplicas': 1,
+                                 'maxReplicas': 1
+                             }
+                         })
 
     @task(5)
     def load_test_endpoint(self):
