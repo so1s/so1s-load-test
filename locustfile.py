@@ -104,11 +104,10 @@ class So1sUser(FastHttpUser):
         deployment = random.choice(self.get_deployments())
         ep = deployment['endPoint']
 
-        if deployment['status'] != 'RUNNING':
+        if deployment['status'] not in ['RUNNING', 'UNKNOWN']:
             return
 
-        self.client.post(f"http://{ep}/predict", files=[
-            ('image', ('leonberg.jpg', open('images/leonberg.jpg', 'rb'), 'image/jpeg'))])
+        self.client.post(f"https://{ep}/predict", headers={"accept": 'text/plain', 'Content-Type': 'image/jpeg'}, data=open('images/leonberg.jpg', 'rb'))
 
     def delete_resource(self):
         self.client.delete(f"/api/v1/resources/{self.resource['id']}")
