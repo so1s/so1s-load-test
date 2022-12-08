@@ -12,7 +12,7 @@ Locust 기반 부하 테스트 코드 및 분석 결과
 
 ## 사용 방법
 
-```
+```bash
 pip install -r requirements.txt
 locust
 ```
