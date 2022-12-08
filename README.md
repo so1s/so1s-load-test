@@ -10,7 +10,14 @@ Locust 기반 부하 테스트 코드 및 분석 결과
 
 </div>
 
-## 설명
+## 사용 방법
+
+```
+pip install -r requirements.txt
+locust
+```
+
+## 컴포넌트 설명
 
 EKS 클러스터에 배포되어 있는 API 서버와 인퍼런스 서버에 대해 Locust를 사용하여 부하 테스트를 진행하였습니다.
 
