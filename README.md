@@ -27,4 +27,4 @@ EKS 클러스터에 배포되어 있는 API 서버와 인퍼런스 서버에 대
 
 ## 스크린샷
 
-![RPS / Response time graph](https://user-images.githubusercontent.com/32592965/206365029-6798ae2f-4fea-4296-b806-d9a072291662.png)
+![RPS / Response time graph](https://raw.githubusercontent.com/so1s/.github/main/static/load-test-graph.png)
