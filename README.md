@@ -1,8 +1,10 @@
 <div align="center">
 
-[프로젝트 소개 페이지로 돌아가기](https://github.com/so1s)
+<img src="https://raw.githubusercontent.com/so1s/.github/main/static/logo.png" alt="So1s Logo" height="250px" />
 
 # So1s Load Testing
+
+[프로젝트 소개 페이지로 돌아가기](https://github.com/so1s)
 
 </div>
 
