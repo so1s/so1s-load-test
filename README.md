@@ -17,11 +17,12 @@ pip install -r requirements.txt
 locust
 ```
 
-## 컴포넌트 설명
+## 주요 기능
 
-EKS 클러스터에 배포되어 있는 API 서버와 인퍼런스 서버에 대해 Locust를 사용하여 부하 테스트를 진행하였습니다.
-
-모델 업로드, 빌드, 인퍼런스 서버 생성, FormData 이미지 업로드를 통한 인퍼런스 서버 Predict API등을 테스트하였습니다.
+- Locust 기반 실 클러스터 부하 테스트 진행
+- API 서버 부하 테스트 기능 지원
+- 인퍼런스 서버 부하 테스트 기능 지원
+- 보고서의 형태로 분석 결과 작성
 
 [분석 결과 보러가기](https://dynamic-currant-6c5.notion.site/6a1c532b42ba4b528889706e0f28c455)
 
