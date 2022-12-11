@@ -4,7 +4,7 @@
 
 # So1s Load Testing
 
-Locust 기반 부하 테스트 코드 및 분석 결과
+Locust 기반 클러스터 부하 테스트 코드 및 분석 결과
 
 [프로젝트 소개 페이지로 돌아가기](https://github.com/so1s)
 
