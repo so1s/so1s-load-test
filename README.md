@@ -25,7 +25,3 @@ locust
 - 보고서의 형태로 분석 결과 작성
 
 [분석 결과 보러가기](https://dynamic-currant-6c5.notion.site/6a1c532b42ba4b528889706e0f28c455)
-
-## 스크린샷
-
-![RPS / Response time graph](https://raw.githubusercontent.com/so1s/.github/main/static/load-test-graph.png)
