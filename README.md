@@ -12,6 +12,8 @@ Locust 기반 Kubernetes 클러스터 부하 테스트 구현 & 분석 결과
 
 ## 사용 방법
 
+이 레포는 Public Template으로 제공됩니다. 보일러플레이트로 사용하시려면 상단의 `Use This Template` 버튼을 눌러주세요!
+
 ```bash
 pip install -r requirements.txt
 locust
